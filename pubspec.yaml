@@ -1,0 +1,43 @@
+name: notepro
+description: "A new Flutter project."
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+
+  # Firebase Core
+  firebase_core: ^2.27.0
+
+  # Auth
+  firebase_auth: ^4.17.4
+
+  # Cloud Firestore
+  cloud_firestore: ^4.15.4
+
+  # State management
+  flutter_riverpod: ^2.5.1
+
+  # Routing
+  go_router: ^13.2.0
+
+  # UI
+  flutter_hooks: ^0.20.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/testimonial_bg.png
+    - assets/user1.png
+    - assets/logo.png
