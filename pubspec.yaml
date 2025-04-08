@@ -41,3 +41,8 @@ flutter:
     - assets/testimonial_bg.png
     - assets/user1.png
     - assets/logo.png
+
+  fonts:
+    - family: BreeSerif
+      fonts:
+        - asset: assets/fonts/BreeSerif-Regular.ttf
