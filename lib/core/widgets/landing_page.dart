@@ -8,10 +8,11 @@ class LandingPage extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          // Partie supérieure (70%)
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.7,
-            child: Row(
+            child: Container(
+              color: Colors.black,
+              child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
@@ -19,8 +20,6 @@ class LandingPage extends StatelessWidget {
                   child: Container(
                     color: const Color(0xff141414),
                     child: Column(
-                      // mainAxisAlignment: MainAxisAlignment.center,
-                      // crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Padding(
                           padding: EdgeInsets.only(left: 100, top: 80, bottom: 20),
@@ -79,12 +78,10 @@ class LandingPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const Divider(
+                        Divider(
                           height: 20,       // Espace vertical autour de la ligne
                           thickness: 0.5,     // Épaisseur de la ligne
-                          color: Colors.grey, // Couleur
-                          // indent: 20,       // Marge à gauche
-                          // endIndent: 20,    // Marge à droite
+                          color: Colors.grey.withOpacity(0.3), // Couleur
                         ),
                         const SizedBox(height: 20),
                         Row(
@@ -118,10 +115,10 @@ class LandingPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const VerticalDivider(
+                VerticalDivider(
                   width: 0.5,
                   thickness: 1,
-                  color: Color(0xff262626),
+                  color: Colors.grey.withOpacity(0.3),
                 ),
                 Expanded(
                   flex: 4,
@@ -202,10 +199,11 @@ class LandingPage extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(
-            height: 0.5,
+          ),
+          Divider(
+            height: 0.2,
             thickness: 1,
-            color: Color(0xff262626),
+            color: Colors.black.withOpacity(0.2),
           ),
           // Partie inférieure (30%)
         Expanded(
@@ -225,7 +223,7 @@ class LandingPage extends StatelessWidget {
                 
                 const VerticalDivider(
                   thickness: 0.5,
-                  color: Color(0xff262626),
+                  color: Colors.grey,
                   indent: 20,
                   endIndent: 20,
                 ),
@@ -241,7 +239,7 @@ class LandingPage extends StatelessWidget {
                 
                 const VerticalDivider(
                   thickness: 0.5,
-                  color: Color(0xff262626),
+                  color: Colors.grey,
                   indent: 20,
                   endIndent: 20,
                 ),
