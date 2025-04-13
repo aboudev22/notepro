@@ -11,16 +11,20 @@ class Routes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case home:
-        return MaterialPageRoute(builder: (_) => HomePage());
+        return MaterialPageRoute(builder: (_) => const HomePage());
       case login:
-        return MaterialPageRoute(builder: (_) => LoginPage()); // Assure-toi de créer LoginPage
+        return MaterialPageRoute(
+          builder: (_) => const LoginPage(),
+        ); // Assure-toi de créer LoginPage
       case signup:
-        return MaterialPageRoute(builder: (_) => SignupPage()); // Assure-toi de créer SignupPage
+        return MaterialPageRoute(
+          builder: (_) => const SignupPage(),
+        ); // Assure-toi de créer SignupPage
       default:
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            body: Center(child: Text('Page non trouvée')),
-          ),
+          builder:
+              (_) =>
+                  const Scaffold(body: Center(child: Text('Page non trouvée'))),
         );
     }
   }

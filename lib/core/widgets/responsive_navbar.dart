@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notepro/routes/routes.dart'; 
-
+import 'package:notepro/routes/routes.dart';
 
 class ResponsiveNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String currentPage;
@@ -31,19 +30,23 @@ class ResponsiveNavbar extends StatelessWidget implements PreferredSizeWidget {
                   const SizedBox(width: 8),
                   const Text(
                     'notepro',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
 
               // Burger menu
               Builder(
-                builder: (context) => IconButton(
-                  icon: const Icon(Icons.menu, color: Colors.white),
-                  onPressed: () {
-                    Scaffold.of(context).openEndDrawer();
-                  },
-                ),
+                builder:
+                    (context) => IconButton(
+                      icon: const Icon(Icons.menu, color: Colors.white),
+                      onPressed: () {
+                        Scaffold.of(context).openEndDrawer();
+                      },
+                    ),
               ),
             ],
           ),
@@ -64,17 +67,20 @@ class ResponsiveNavbar extends StatelessWidget implements PreferredSizeWidget {
             onTap: () {},
             child: Row(
               children: [
-                  Image.asset(
-                    'assets/logo.png',
-                    height: 50, // Adjust the size as needed
-                    width: 50,
+                Image.asset(
+                  'assets/logo.png',
+                  height: 50, // Adjust the size as needed
+                  width: 50,
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'notepro',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'notepro',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ],
+                ),
+              ],
             ),
           ),
 
@@ -94,28 +100,40 @@ class ResponsiveNavbar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               TextButton(
                 onPressed: () {
-                    // Navigation vers la page de connexion
-                    Navigator.pushNamed(context, Routes.login);
+                  // Navigation vers la page de connexion
+                  Navigator.pushNamed(context, Routes.login);
                 },
-                child: const Text('Connexion', style: TextStyle(color: Colors.white)),
+                child: const Text(
+                  'Connexion',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
               const SizedBox(width: 12),
               TextButton(
                 onPressed: () {},
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Color(0xFFF56E0F)),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  )),
-                  overlayColor: MaterialStateProperty.all(Colors.grey.withOpacity(0.1)),
+                  backgroundColor: WidgetStateProperty.all(
+                    const Color(0xFFF56E0F),
+                  ),
+                  shape: WidgetStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  overlayColor: WidgetStateProperty.all(
+                    Colors.grey.withOpacity(0.1),
+                  ),
                 ),
                 child: const Text(
                   'Espace Entreprise',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -126,23 +144,18 @@ class ResponsiveNavbar extends StatelessWidget implements PreferredSizeWidget {
     return TextButton(
       onPressed: () {},
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(
-            isActive ? Colors.black : Colors.transparent),
-        shape: MaterialStateProperty.all(RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        )),
-        overlayColor: MaterialStateProperty.all(Colors.grey.withOpacity(0.1)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: Colors.white,
+        backgroundColor: WidgetStateProperty.all(
+          isActive ? Colors.black : Colors.transparent,
         ),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        overlayColor: WidgetStateProperty.all(Colors.grey.withOpacity(0.1)),
       ),
+      child: Text(label, style: const TextStyle(color: Colors.white)),
     );
   }
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
-

@@ -4,6 +4,8 @@ import 'package:notepro/core/widgets/responsive_navbar.dart';
 import 'package:notepro/core/widgets/landing_page.dart';
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -14,10 +16,7 @@ class HomePage extends StatelessWidget {
         child: AppBar(
           title: const Text(
             'Souscrivez à notre newsletter pour recevoir les dernières mises à jour !',
-            style: TextStyle(
-              color: Color(0xff98989A),
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Color(0xff98989A), fontSize: 12),
           ),
           centerTitle: true,
           backgroundColor: const Color(0xff141414),
@@ -36,20 +35,17 @@ class HomePage extends StatelessWidget {
             SizedBox(
               height: 95,
               child: DrawerHeader(
-                decoration: const BoxDecoration(
-                  color: Color(0xFF1F1F1F),
-                ),
+                decoration: const BoxDecoration(color: Color(0xFF1F1F1F)),
                 child: Row(
                   children: [
-                    Image.asset(
-                      'assets/logo.png',
-                      height: 50,
-                      width: 50,
-                    ),
+                    Image.asset('assets/logo.png', height: 50, width: 50),
                     const SizedBox(width: 8),
                     const Text(
                       'notepro',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -77,10 +73,7 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildDrawerItem(BuildContext context, String title, String route) {
-    return ListTile(
-      title: Text(title),
-      onTap: () => _navigate(context, route),
-    );
+    return ListTile(title: Text(title), onTap: () => _navigate(context, route));
   }
 
   Widget _buildBody() {
