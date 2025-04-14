@@ -1,4 +1,4 @@
-//fichier d'entrer
+//fichier d'entrer principale
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
