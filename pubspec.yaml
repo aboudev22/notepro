@@ -44,6 +44,7 @@ flutter:
     - assets/bg_sun.png
     - assets/icons/arrow_up.png
     - assets/icons/icon1.png
+    - assets/icons/menu.png
 
   fonts:
     - family: BreeSerif
