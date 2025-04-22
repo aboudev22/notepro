@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
+  google_fonts: ^6.1.0
 
   # Firebase Core
   firebase_core: ^2.27.0
@@ -38,13 +39,14 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/testimonial_bg.png
     - assets/user1.png
     - assets/logo.png
-    - assets/bg_sun.png
-    - assets/icons/arrow_up.png
-    - assets/icons/icon1.png
-    - assets/icons/menu.png
+    - assets/card1.png
+    - assets/card2.png
+    - assets/card3.png
+    - assets/card4.png
+    - assets/card5.png
+    - assets/card6.png
 
   fonts:
     - family: BreeSerif
