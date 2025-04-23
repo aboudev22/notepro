@@ -10,12 +10,12 @@ class Notes extends StatefulWidget {
 
 class _NotesState extends State<Notes> with TickerProviderStateMixin {
   final List<String> images = [
-    'assets/card1.png',
-    'assets/card2.png',
-    'assets/card3.png',
-    'assets/card4.png',
-    'assets/card5.png',
-    'assets/card6.png',
+    'assets/images/card1.png',
+    'assets/images/card2.png',
+    'assets/images/card3.png',
+    'assets/images/card4.png',
+    'assets/images/card5.png',
+    'assets/images/card6.png',
   ];
 
   late Ticker _ticker;
@@ -23,46 +23,66 @@ class _NotesState extends State<Notes> with TickerProviderStateMixin {
   String _direction = "right";
   double _contentWidth = 0;
   double _imageHeight = 192;
-  double _speed = 60;
+  final double _speed = 60;
   final GlobalKey _contentKey = GlobalKey();
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _ticker = createTicker(_onTick);
+    _ticker = createTicker(_onTick)..stop();
     WidgetsBinding.instance.addPostFrameCallback((_) => _initSizes());
   }
 
   void _initSizes() {
+    if (_isInitialized) return;
+
     final renderBox =
         _contentKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox == null) return;
+    if (renderBox == null || !renderBox.hasSize) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _initSizes());
+      return;
+    }
 
     final screenSize = MediaQuery.of(context).size;
 
-    // Gestion des breakpoints
+    _imageHeight = 192;
     if (screenSize.width >= 1024) {
-      _imageHeight = 384; // lg:h-96 (96 * 4)
+      _imageHeight = 384;
     } else if (screenSize.width >= 768) {
       _imageHeight = 288;
     }
 
-    _contentWidth = (renderBox.size.width / 2) - 30; // Ajustement pour gap-10
-    _ticker.start();
+    final renderWidth = renderBox.size.width;
+    _contentWidth = (renderWidth > 0 ? renderWidth : screenSize.width) / 2 - 30;
+    if (_contentWidth.isNaN || _contentWidth <= 0) {
+      _contentWidth = screenSize.width / 2 - 30;
+    }
+
+    _isInitialized = true;
+    if (!_ticker.isActive) {
+      _ticker.start();
+    }
   }
 
   void _onTick(Duration elapsed) {
+    if (!_isInitialized || _contentWidth <= 0) return;
+
     final deltaTime = elapsed.inMilliseconds / 1000;
     final directionFactor = _direction == "right" ? -1 : 1;
 
     setState(() {
       _progress += _speed * deltaTime * directionFactor;
       _progress = _progress.clamp(-_contentWidth, 0.0);
-
       if (_progress <= -_contentWidth || _progress >= 0) {
         _direction = _direction == "right" ? "left" : "right";
       }
     });
+
+    // reset ticker so elapsed is relative
+    _ticker
+      ..stop()
+      ..start();
   }
 
   @override
@@ -77,9 +97,8 @@ class _NotesState extends State<Notes> with TickerProviderStateMixin {
     final isLargeScreen = screenSize.width >= 1024;
 
     return Container(
-      margin: EdgeInsets.only(
-        top: isLargeScreen ? 40.0 : 20.0, // Gestion du margin-top
-      ),
+      margin: EdgeInsets.only(top: isLargeScreen ? 40.0 : 20.0),
+      height: _imageHeight, // <-- spécifier la hauteur pour voir le carrousel
       child: OverflowBox(
         maxWidth: double.infinity,
         alignment: Alignment.centerLeft,
@@ -87,10 +106,7 @@ class _NotesState extends State<Notes> with TickerProviderStateMixin {
           offset: Offset(_progress, 0),
           child: Row(
             key: _contentKey,
-            children: [
-              ..._buildImageSet(),
-              ..._buildImageSet(), // Duplication pour l'effet infini
-            ],
+            children: [..._buildImageSet(), ..._buildImageSet()],
           ),
         ),
       ),
@@ -100,13 +116,20 @@ class _NotesState extends State<Notes> with TickerProviderStateMixin {
   List<Widget> _buildImageSet() {
     return images.map((image) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20), // gap-10
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Image.asset(
           image,
           height: _imageHeight,
-          width: _imageHeight, // Ratio 1:1
+          width: _imageHeight,
           fit: BoxFit.cover,
-          cacheWidth: _imageHeight.toInt(), // Optimisation GPU
+          cacheWidth: _imageHeight.toInt(),
+          errorBuilder:
+              (context, error, stackTrace) => Container(
+                height: _imageHeight,
+                width: _imageHeight,
+                color: Colors.grey[300],
+                child: const Icon(Icons.broken_image),
+              ),
         ),
       );
     }).toList();

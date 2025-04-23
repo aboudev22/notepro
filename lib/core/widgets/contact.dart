@@ -34,28 +34,41 @@ class Contacts extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16.0),
-      child: Container(
-        padding: const EdgeInsets.only(bottom: 40.0),
-        decoration: BoxDecoration(
-          color: Colors.grey[900],
-          borderRadius: BorderRadius.circular(16.0),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height * 0.8,
         ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return constraints.maxWidth >= 1024
-                ? Row(
-                  children: [
-                    _buildLeftColumn(textStyle),
-                    _buildRightGrid(textStyle),
-                  ],
-                )
-                : Column(
-                  children: [
-                    _buildLeftColumn(textStyle),
-                    _buildRightGrid(textStyle),
-                  ],
-                );
-          },
+        child: Container(
+          padding: const EdgeInsets.only(bottom: 40.0),
+          decoration: BoxDecoration(
+            color: Colors.grey[900],
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return constraints.maxWidth >= 1024
+                  ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        fit: FlexFit.loose,
+                        child: _buildLeftColumn(textStyle),
+                      ),
+                      Flexible(
+                        fit: FlexFit.loose,
+                        child: _buildRightGrid(textStyle),
+                      ),
+                    ],
+                  )
+                  : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildLeftColumn(textStyle),
+                      _buildRightGrid(textStyle),
+                    ],
+                  );
+            },
+          ),
         ),
       ),
     );
@@ -72,41 +85,38 @@ class Contacts extends StatelessWidget {
             ).createShader(const Rect.fromLTWH(0, 0, 300, 20)),
     );
 
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Venez notez votre produit!', style: gradientStyle),
-            const SizedBox(height: 8.0),
-            Text('Des classement chaque semaine.', style: gradientStyle),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Venez notez votre produit!', style: gradientStyle),
+          const SizedBox(height: 8.0),
+          Text('Des classement chaque semaine.', style: gradientStyle),
+        ],
       ),
     );
   }
 
   Widget _buildRightGrid(TextStyle baseStyle) {
-    return Expanded(
-      child: GridView.count(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        crossAxisCount: 2,
-        childAspectRatio: 3,
-        children: [
-          _GridTitle(text: 'Entreprise', style: baseStyle),
-          _GridTitle(text: 'Services', style: baseStyle),
-          _GridItem(text: 'A propos', style: baseStyle),
-          _GridItem(text: 'Expertise', style: baseStyle),
-          _GridItem(text: 'Notes', style: baseStyle),
-          _GridItem(text: 'A propos', style: baseStyle),
-          _GridItem(text: 'Expertise', style: baseStyle),
-          _GridItem(text: 'Notes', style: baseStyle),
-          _GridItem(text: 'Expertise', style: baseStyle),
-          _GridItem(text: 'Notes', style: baseStyle),
-        ],
-      ),
+    return GridView.count(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      crossAxisCount: 2,
+      childAspectRatio: 3,
+      children: [
+        _GridTitle(text: 'Entreprise', style: baseStyle),
+        _GridTitle(text: 'Services', style: baseStyle),
+        _GridItem(text: 'A propos', style: baseStyle),
+        _GridItem(text: 'Expertise', style: baseStyle),
+        _GridItem(text: 'Notes', style: baseStyle),
+        _GridItem(text: 'A propos', style: baseStyle),
+        _GridItem(text: 'Expertise', style: baseStyle),
+        _GridItem(text: 'Notes', style: baseStyle),
+        _GridItem(text: 'Expertise', style: baseStyle),
+        _GridItem(text: 'Notes', style: baseStyle),
+      ],
     );
   }
 }
