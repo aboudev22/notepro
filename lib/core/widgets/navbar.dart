@@ -45,7 +45,7 @@ class _NavbarState extends State<Navbar> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    MediaQuery.of(context).size.width >= 1600
+                    MediaQuery.of(context).size.width >= 1024
                         ? Row(
                           children: [
                             _NavText(
@@ -53,22 +53,46 @@ class _NavbarState extends State<Navbar> {
                               onTap:
                                   () => Navigator.pushNamed(context, '/Blog'),
                             ),
-                            const SizedBox(width: 32),
+                            SizedBox(
+                              width:
+                                  MediaQuery.of(context).size.width < 1600
+                                      ? 20
+                                      : 32,
+                            ),
                             _NavText(
                               text: 'Avis',
                               onTap:
                                   () => Navigator.pushNamed(context, '/Avis'),
                             ),
-                            const SizedBox(width: 32),
+                            SizedBox(
+                              width:
+                                  MediaQuery.of(context).size.width < 1600
+                                      ? 20
+                                      : 32,
+                            ),
                             _NavText(
                               text: 'Notes',
                               onTap:
                                   () => Navigator.pushNamed(context, '/Notes'),
                             ),
-                            const SizedBox(width: 32),
+                            SizedBox(
+                              width:
+                                  MediaQuery.of(context).size.width < 1600
+                                      ? 20
+                                      : 32,
+                            ),
                             _NavText(text: 'Contacts', onTap: () {}),
-                            const SizedBox(width: 32),
-                            _NavText(text: 'Support', onTap: () {}),
+                            SizedBox(
+                              width:
+                                  MediaQuery.of(context).size.width < 1600
+                                      ? 20
+                                      : 32,
+                            ),
+                            _NavText(
+                              text: 'Support',
+                              onTap:
+                                  () => Navigator.pushNamed(context, '/admin'),
+                            ),
                           ],
                         )
                         : Container(),
@@ -126,7 +150,7 @@ class _NavbarState extends State<Navbar> {
               ),
             ),
             const SizedBox(width: 16),
-            MediaQuery.of(context).size.width >= 1024
+            MediaQuery.of(context).size.width >= 1400
                 ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -317,7 +341,7 @@ class _NavTextState extends State<_NavText> {
           widget.text,
           style: TextStyle(
             color: Colors.black,
-            fontSize: 20,
+            fontSize: MediaQuery.of(context).size.width < 1024 ? 16 : 20,
             fontFamily: GoogleFonts.bricolageGrotesque().fontFamily,
             fontWeight: FontWeight.w900,
             decoration:

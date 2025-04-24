@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                     const HeroSection(),
                     const SizedBox(height: 40),
                     const AnimationCard(),
-                    const SizedBox(height: 100), // Espace en bas
+                    // Espace en bas
                   ],
                 ),
               ),
