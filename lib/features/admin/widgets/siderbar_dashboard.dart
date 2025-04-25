@@ -13,7 +13,6 @@ class DashboardSidebar extends StatelessWidget {
     this.isCollapsed = false,
     required this.onClose,
   });
-
   Widget buildNavButton({
     required IconData icon,
     required String label,
