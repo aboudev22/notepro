@@ -1,9 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:notepro/core/models/blog.dart';
 import 'package:notepro/core/widgets/animation_card.dart';
+import 'package:notepro/core/widgets/blog_post.dart';
+import 'package:notepro/core/widgets/contact.dart';
 import 'package:notepro/core/widgets/hero_section.dart';
 import 'package:notepro/core/widgets/navbar.dart';
 import 'package:notepro/core/widgets/burger_menu.dart';
+import 'package:notepro/features/admin/presentation/recent_posts.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -99,7 +103,28 @@ class _HomePageState extends State<HomePage> {
                     const HeroSection(),
                     const SizedBox(height: 40),
                     const AnimationCard(),
-                    // Espace en bas
+                    Center(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal:
+                              MediaQuery.of(context).size.width < 600 ? 5 : 10,
+                        ), // Grande marge par défaut
+                        constraints: const BoxConstraints(
+                          maxWidth: 1000,
+                        ), // Limite la largeur sur grand écran
+                        child: Column(
+                          children: [
+                            ...List.generate(
+                              blogPosts.length,
+                              (index) => BlogPostCard(blog: blogPosts[index]),
+                            ),
+                            const RecentPosts(),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    const Contacts(),
                   ],
                 ),
               ),

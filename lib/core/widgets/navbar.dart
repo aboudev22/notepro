@@ -59,37 +59,9 @@ class _NavbarState extends State<Navbar> {
                                       ? 20
                                       : 32,
                             ),
+
                             _NavText(
-                              text: 'Avis',
-                              onTap:
-                                  () => Navigator.pushNamed(context, '/Avis'),
-                            ),
-                            SizedBox(
-                              width:
-                                  MediaQuery.of(context).size.width < 1600
-                                      ? 20
-                                      : 32,
-                            ),
-                            _NavText(
-                              text: 'Notes',
-                              onTap:
-                                  () => Navigator.pushNamed(context, '/Notes'),
-                            ),
-                            SizedBox(
-                              width:
-                                  MediaQuery.of(context).size.width < 1600
-                                      ? 20
-                                      : 32,
-                            ),
-                            _NavText(text: 'Contacts', onTap: () {}),
-                            SizedBox(
-                              width:
-                                  MediaQuery.of(context).size.width < 1600
-                                      ? 20
-                                      : 32,
-                            ),
-                            _NavText(
-                              text: 'Support',
+                              text: 'Contacts',
                               onTap:
                                   () => Navigator.pushNamed(context, '/admin'),
                             ),

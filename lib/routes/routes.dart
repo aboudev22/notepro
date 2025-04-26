@@ -10,6 +10,8 @@ class Routes {
   static const String signup = '/signup';
   static const String adminDashboard =
       '/admin'; // Ajoute le chemin pour le tableau de bord admin
+  static const String writeBlogPage =
+      '/writeblog'; // Ajoute le chemin pour écrire un blog
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {

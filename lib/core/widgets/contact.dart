@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:google_fonts/google_fonts.dart' show GoogleFonts;
 
 void main() {
   runApp(
     MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(textTheme: GoogleFonts.bricolageGrotesqueTextTheme()),
       home: const ContactsPage(),
     ),
@@ -33,50 +34,56 @@ class Contacts extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
       child: ConstrainedBox(
-        constraints: BoxConstraints(
-          minHeight: MediaQuery.of(context).size.height * 0.8,
-        ),
+        constraints: const BoxConstraints(maxWidth: 1200),
         child: Container(
-          padding: const EdgeInsets.only(bottom: 40.0),
+          padding: const EdgeInsets.symmetric(vertical: 40),
           decoration: BoxDecoration(
             color: Colors.grey[900],
             borderRadius: BorderRadius.circular(16.0),
           ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return constraints.maxWidth >= 1024
-                  ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        fit: FlexFit.loose,
-                        child: _buildLeftColumn(textStyle),
-                      ),
-                      Flexible(
-                        fit: FlexFit.loose,
-                        child: _buildRightGrid(textStyle),
-                      ),
-                    ],
-                  )
-                  : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildLeftColumn(textStyle),
-                      _buildRightGrid(textStyle),
-                    ],
-                  );
-            },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return constraints.maxWidth >= 1024
+                      ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: _buildLeftColumn(context, textStyle),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: _buildRightGrid(context, textStyle),
+                          ),
+                        ],
+                      )
+                      : Column(
+                        children: [
+                          _buildLeftColumn(context, textStyle),
+                          _buildRightGrid(context, textStyle),
+                        ],
+                      );
+                },
+              ),
+              const SizedBox(height: 20),
+              const Divider(color: Colors.white24),
+              const SizedBox(height: 20),
+              _buildCopyright(textStyle),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildLeftColumn(TextStyle baseStyle) {
+  Widget _buildLeftColumn(BuildContext context, TextStyle baseStyle) {
     final gradientStyle = baseStyle.copyWith(
-      fontSize: 24.0,
+      fontSize: MediaQuery.of(context).size.width < 600 ? 24.0 : 38,
       fontWeight: FontWeight.bold,
       foreground:
           Paint()
@@ -89,34 +96,40 @@ class Contacts extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Venez notez votre produit!', style: gradientStyle),
+          Text('Venez noter votre produit !', style: gradientStyle),
           const SizedBox(height: 8.0),
-          Text('Des classement chaque semaine.', style: gradientStyle),
+          Text('Des classements chaque semaine.', style: gradientStyle),
         ],
       ),
     );
   }
 
-  Widget _buildRightGrid(TextStyle baseStyle) {
+  Widget _buildRightGrid(BuildContext context, TextStyle baseStyle) {
     return GridView.count(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       crossAxisCount: 2,
-      childAspectRatio: 3,
+      childAspectRatio: MediaQuery.of(context).size.width < 600 ? 3.5 : 10.0,
       children: [
         _GridTitle(text: 'Entreprise', style: baseStyle),
         _GridTitle(text: 'Services', style: baseStyle),
-        _GridItem(text: 'A propos', style: baseStyle),
+        _GridItem(text: 'À propos', style: baseStyle),
         _GridItem(text: 'Expertise', style: baseStyle),
         _GridItem(text: 'Notes', style: baseStyle),
-        _GridItem(text: 'A propos', style: baseStyle),
-        _GridItem(text: 'Expertise', style: baseStyle),
-        _GridItem(text: 'Notes', style: baseStyle),
-        _GridItem(text: 'Expertise', style: baseStyle),
-        _GridItem(text: 'Notes', style: baseStyle),
+        _GridItem(text: 'Support', style: baseStyle),
+        _GridItem(text: 'Blog', style: baseStyle),
+        _GridItem(text: 'Carrières', style: baseStyle),
       ],
+    );
+  }
+
+  Widget _buildCopyright(TextStyle baseStyle) {
+    final year = DateTime.now().year;
+
+    return Text(
+      '© $year notepro. Tous droits réservés.',
+      style: baseStyle.copyWith(color: Colors.white70, fontSize: 12.0),
     );
   }
 }
@@ -130,13 +143,13 @@ class _GridTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Text(
         text,
         style: style.copyWith(
           color: Colors.orange[400],
           fontWeight: FontWeight.bold,
-          fontSize: 24.0,
+          fontSize: 20.0,
         ),
       ),
     );
@@ -165,13 +178,13 @@ class _GridItemState extends State<_GridItem> {
       child: GestureDetector(
         onTap: () {},
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           child: Text(
             widget.text,
             style: widget.style.copyWith(
               color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 12.0,
+              fontWeight: FontWeight.w500,
+              fontSize: 14.0,
               decoration: _isHovering ? TextDecoration.underline : null,
             ),
           ),
