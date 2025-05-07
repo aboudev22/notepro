@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:notepro/routes/routes.dart';
-import 'package:google_fonts/google_fonts.dart'; // Ajout pour les polices Google
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:notepro/features/auth/data/services/auth_service.dart';
 import 'package:notepro/features/auth/presentation/providers/auth_provider.dart';
-import 'package:notepro/features/shared/presentation/widgets/nav_bar.dart';
+import 'package:notepro/features/auth/presentation/login_page.dart';
+import 'package:notepro/features/auth/presentation/signup_page.dart';
+import 'package:notepro/features/auth/presentation/home_page.dart';
+import 'package:notepro/features/admin/presentation/admin_dashboard.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -48,7 +50,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'notepro',
+        title: 'NotePro',
         builder: (context, child) {
           return ScrollConfiguration(
             behavior: MyCustomScrollBehavior(),
@@ -61,8 +63,13 @@ class MyApp extends StatelessWidget {
             Theme.of(context).textTheme,
           ),
         ),
-        initialRoute: Routes.home,
-        onGenerateRoute: Routes.generateRoute,
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const HomePage(),
+          '/login': (context) => const LoginPage(),
+          '/signup': (context) => const SignupPage(),
+          '/admin': (context) => const DashboardPage(),
+        },
       ),
     );
   }

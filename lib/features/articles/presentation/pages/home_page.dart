@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:notepro/features/articles/data/repositories/article_repository.dart';
 import 'package:notepro/features/articles/domain/models/article.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:provider/provider.dart';
+import 'package:notepro/features/auth/presentation/providers/auth_provider.dart';
 
 class HomePage extends StatelessWidget {
   final ArticleRepository _articleRepository = ArticleRepository();
@@ -33,6 +35,19 @@ class HomePage extends StatelessWidget {
               return ArticleCard(article: article);
             },
           );
+        },
+      ),
+      floatingActionButton: Consumer<AuthProvider>(
+        builder: (context, authProvider, child) {
+          if (authProvider.isAuthenticated && authProvider.isAdmin) {
+            return FloatingActionButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/create-article');
+              },
+              child: const Icon(Icons.add),
+            );
+          }
+          return const SizedBox.shrink();
         },
       ),
     );

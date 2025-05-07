@@ -81,7 +81,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
-                    child: Container(color: Colors.black.withOpacity(0.2)),
+                    child: Container(color: Colors.black.withAlpha(51)),
                   ),
                 ],
               ),
@@ -108,10 +108,8 @@ class _HomePageState extends State<HomePage> {
                         padding: EdgeInsets.symmetric(
                           horizontal:
                               MediaQuery.of(context).size.width < 600 ? 5 : 10,
-                        ), // Grande marge par défaut
-                        constraints: const BoxConstraints(
-                          maxWidth: 1000,
-                        ), // Limite la largeur sur grand écran
+                        ),
+                        constraints: const BoxConstraints(maxWidth: 1000),
                         child: Column(
                           children: [
                             ...List.generate(
@@ -137,8 +135,6 @@ class _HomePageState extends State<HomePage> {
                   child: Container(color: Colors.transparent),
                 ),
               ),
-
-            BurgerMenu(visible: _viewMenu),
           ],
         ),
       ),

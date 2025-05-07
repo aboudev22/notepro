@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:provider/provider.dart';
+import 'package:notepro/features/auth/presentation/providers/auth_provider.dart';
+import 'package:notepro/features/admin/presentation/admin_dashboard.dart';
 
 class BurgerMenu extends StatelessWidget {
   final bool visible;
@@ -8,79 +11,173 @@ class BurgerMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: visible,
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height * 0.6, // h-3/5
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.8), // bg-black/80
-          // Flutter's backdrop filter for blur effect
-        ),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: 2.0,
-            sigmaY: 2.0,
-          ), // backdrop-blur-xs
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround, // justify-around
-            children: [
-              _MenuItem(
-                text: 'Connexion',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20, // text-xl
-                  fontWeight: FontWeight.bold,
-                ),
-                backgroundColor: Colors.black,
-                hoverBackgroundColor: Colors.black.withOpacity(0.6),
-                activeBackgroundColor: Colors.black.withOpacity(0.6),
-                borderRadius: BorderRadius.circular(6), // rounded-md
-                padding: const EdgeInsets.all(8), // p-2
-              ),
-              _MenuItem(
-                text: 'Blog',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-                hoverColor: Colors.white.withOpacity(0.6),
-                activeColor: Colors.white.withOpacity(0.6),
-              ),
-              _MenuItem(
-                text: 'Avis',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-                hoverColor: Colors.white.withOpacity(0.6),
-                activeColor: Colors.white.withOpacity(0.6),
-              ),
-              _MenuItem(
-                text: 'Notes',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-                hoverColor: Colors.white.withOpacity(0.6),
-                activeColor: Colors.white.withOpacity(0.6),
-              ),
-              _MenuItem(
-                text: 'Contacts',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-                hoverColor: Colors.white.withOpacity(0.6),
-                activeColor: Colors.white.withOpacity(0.6),
-              ),
-            ],
+    if (!visible) return const SizedBox.shrink();
+
+    return Material(
+      color: Colors.transparent,
+      child: Stack(
+        children: [
+          // Overlay pour fermer le menu au clic
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Container(color: Colors.black.withOpacity(0.5)),
           ),
-        ),
+          // Menu
+          Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              width: double.infinity,
+              height: MediaQuery.of(context).size.height * 0.6,
+              decoration: BoxDecoration(
+                color: Colors.black.withAlpha(204), // 0.8 * 255
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
+                child: Consumer<AuthProvider>(
+                  builder: (context, authProvider, child) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        if (!authProvider.isAuthenticated) ...[
+                          _MenuItem(
+                            text: 'Connexion',
+                            onTap: () {
+                              Navigator.pop(context); // Ferme le menu
+                              Navigator.pushNamed(context, '/login');
+                            },
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            backgroundColor: Colors.black,
+                            hoverBackgroundColor: Colors.black.withAlpha(153),
+                            activeBackgroundColor: Colors.black.withAlpha(153),
+                            borderRadius: BorderRadius.circular(6),
+                            padding: const EdgeInsets.all(8),
+                          ),
+                          _MenuItem(
+                            text: 'Inscription',
+                            onTap: () {
+                              Navigator.pop(context); // Ferme le menu
+                              Navigator.pushNamed(context, '/signup');
+                            },
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            backgroundColor: Colors.black,
+                            hoverBackgroundColor: Colors.black.withAlpha(153),
+                            activeBackgroundColor: Colors.black.withAlpha(153),
+                            borderRadius: BorderRadius.circular(6),
+                            padding: const EdgeInsets.all(8),
+                          ),
+                        ] else ...[
+                          if (authProvider.isAdmin)
+                            _MenuItem(
+                              text: 'Dashboard',
+                              onTap: () {
+                                Navigator.pop(context); // Ferme le menu
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const DashboardPage(),
+                                  ),
+                                );
+                              },
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              backgroundColor: Colors.blue,
+                              hoverBackgroundColor: Colors.blue.withAlpha(204),
+                              activeBackgroundColor: Colors.blue.withAlpha(204),
+                              borderRadius: BorderRadius.circular(6),
+                              padding: const EdgeInsets.all(8),
+                            ),
+                          _MenuItem(
+                            text: 'Déconnexion',
+                            onTap: () async {
+                              Navigator.pop(context); // Ferme le menu
+                              await authProvider.signOut();
+                            },
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            backgroundColor: Colors.red,
+                            hoverBackgroundColor: Colors.red.withAlpha(204),
+                            activeBackgroundColor: Colors.red.withAlpha(204),
+                            borderRadius: BorderRadius.circular(6),
+                            padding: const EdgeInsets.all(8),
+                          ),
+                        ],
+                        _MenuItem(
+                          text: 'Blog',
+                          onTap: () {
+                            Navigator.pop(context); // Ferme le menu
+                            Navigator.pushNamed(context, '/blog');
+                          },
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          hoverColor: Colors.white.withAlpha(153),
+                          activeColor: Colors.white.withAlpha(153),
+                        ),
+                        _MenuItem(
+                          text: 'Avis',
+                          onTap: () {
+                            Navigator.pop(context); // Ferme le menu
+                          },
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          hoverColor: Colors.white.withAlpha(153),
+                          activeColor: Colors.white.withAlpha(153),
+                        ),
+                        _MenuItem(
+                          text: 'Notes',
+                          onTap: () {
+                            Navigator.pop(context); // Ferme le menu
+                          },
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          hoverColor: Colors.white.withAlpha(153),
+                          activeColor: Colors.white.withAlpha(153),
+                        ),
+                        _MenuItem(
+                          text: 'Contacts',
+                          onTap: () {
+                            Navigator.pop(context); // Ferme le menu
+                          },
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          hoverColor: Colors.white.withAlpha(153),
+                          activeColor: Colors.white.withAlpha(153),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -96,6 +193,7 @@ class _MenuItem extends StatefulWidget {
   final Color? activeColor;
   final BorderRadius? borderRadius;
   final EdgeInsetsGeometry? padding;
+  final VoidCallback? onTap;
 
   const _MenuItem({
     required this.text,
@@ -107,6 +205,7 @@ class _MenuItem extends StatefulWidget {
     this.activeColor,
     this.borderRadius,
     this.padding,
+    this.onTap,
   });
 
   @override
@@ -147,6 +246,7 @@ class _MenuItemState extends State<_MenuItem> {
         onTapDown: (_) => setState(() => _isActive = true),
         onTapUp: (_) => setState(() => _isActive = false),
         onTapCancel: () => setState(() => _isActive = false),
+        onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: widget.padding,

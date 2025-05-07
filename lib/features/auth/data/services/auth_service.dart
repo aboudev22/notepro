@@ -53,7 +53,9 @@ class AuthService {
 
       // Sauvegarder le token
       final token = await userCredential.user!.getIdToken();
-      await _saveToken(token);
+      if (token != null) {
+        await _saveToken(token);
+      }
 
       return userCredential.user!;
     } catch (e) {
@@ -94,7 +96,9 @@ class AuthService {
 
       // Sauvegarder le token
       final token = await userCredential.user!.getIdToken();
-      await _saveToken(token);
+      if (token != null) {
+        await _saveToken(token);
+      }
 
       return userCredential.user!;
     } catch (e) {
