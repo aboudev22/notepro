@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notepro/features/admin/presentation/admin_dashboard.dart';
+import 'package:notepro/features/admin/presentation/create_article_page.dart';
 import 'package:notepro/features/auth/presentation/home_page.dart'; // Importe la page Home
 import 'package:notepro/features/auth/presentation/login_page.dart'; // Page de connexion
 import 'package:notepro/features/auth/presentation/signup_page.dart'; // Page d'inscription
@@ -12,6 +13,7 @@ class Routes {
       '/admin'; // Ajoute le chemin pour le tableau de bord admin
   static const String writeBlogPage =
       '/writeblog'; // Ajoute le chemin pour écrire un blog
+  static const String createArticle = '/create-article';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -23,6 +25,8 @@ class Routes {
         return MaterialPageRoute(builder: (_) => const DashboardPage());
       case signup:
         return MaterialPageRoute(builder: (_) => const SignupPage());
+      case createArticle:
+        return MaterialPageRoute(builder: (_) => const CreateArticlePage());
       default:
         return MaterialPageRoute(
           builder:

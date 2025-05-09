@@ -19,13 +19,16 @@ class User {
 
   factory User.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    Timestamp? createdAt = data['createdAt'] as Timestamp?;
+    Timestamp? lastLogin = data['lastLogin'] as Timestamp?;
+
     return User(
       id: doc.id,
       email: data['email'] ?? '',
       displayName: data['displayName'] ?? '',
       isAdmin: data['isAdmin'] ?? false,
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      lastLogin: (data['lastLogin'] as Timestamp).toDate(),
+      createdAt: createdAt?.toDate() ?? DateTime.now(),
+      lastLogin: lastLogin?.toDate() ?? DateTime.now(),
     );
   }
 

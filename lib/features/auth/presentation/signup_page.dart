@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:ui';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -22,57 +23,125 @@ class _SignupPageState extends State<SignupPage> {
     return password.length >= 6;
   }
 
+  bool _isEmailValid(String email) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   Future<void> _handleSubmit() async {
+    if (!_isEmailValid(_emailController.text.trim())) {
+      setState(() => _errorMessage = 'Veuillez entrer un email valide');
+      return;
+    }
+
+    if (!_isPasswordValid(_passwordController.text)) {
+      setState(
+        () =>
+            _errorMessage = 'Le mot de passe doit faire au moins 6 caractères',
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = '';
     });
 
-    if (!_isPasswordValid(_passwordController.text)) {
+    try {
+      // 1. Créer l'utilisateur
+      print('Création de l\'utilisateur...');
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+
+      // 2. Créer le document utilisateur dans Firestore
+      if (userCredential.user != null) {
+        print('Création du document utilisateur...');
+        final userData = {
+          'uid': userCredential.user!.uid,
+          'email': userCredential.user!.email,
+          'isAdmin': false,
+          'createdAt': FieldValue.serverTimestamp(),
+          'lastLogin': FieldValue.serverTimestamp(),
+        };
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set(userData);
+        print('Document utilisateur créé avec succès');
+
+        // 3. Stocker le token
+        final prefs = await SharedPreferences.getInstance();
+        final token = await userCredential.user!.getIdToken();
+        await prefs.setString('auth_token', token ?? '');
+        print('Token stocké avec succès');
+
+        // 4. Rediriger
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/');
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      print('Erreur Auth: ${e.code} - ${e.message}');
+      String message = 'Erreur lors de l\'inscription';
+      if (e.code == 'weak-password') {
+        message = 'Le mot de passe est trop faible';
+      } else if (e.code == 'email-already-in-use') {
+        message = 'Un compte existe déjà avec cet email';
+      } else if (e.code == 'invalid-email') {
+        message = 'Email invalide';
+      }
+      setState(() => _errorMessage = message);
+    } on FirebaseException catch (e) {
+      print('Erreur Firestore: ${e.code} - ${e.message}');
       setState(
         () =>
             _errorMessage =
-                'Le mot de passe doit contenir au moins 6 caractères.',
+                'Erreur Firestore: ${e.message ?? 'Vérifiez votre connexion internet'}',
       );
-      _isLoading = false;
-      return;
-    }
-
-    try {
-      final userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-            email: _emailController.text,
-            password: _passwordController.text,
-          );
-
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userCredential.user!.uid)
-          .set({
-            'uid': userCredential.user!.uid,
-            'email': userCredential.user!.email,
-            'createdAt': DateTime.now(),
-          });
-
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/');
-    } on FirebaseAuthException catch (e) {
-      setState(
-        () => _errorMessage = e.message ?? 'Erreur lors de l\'inscription.',
-      );
+    } catch (e) {
+      print('Erreur inattendue: $e');
+      setState(() => _errorMessage = 'Erreur inattendue: ${e.toString()}');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
   Future<void> _handleGoogleSignIn() async {
-    try {
-      final googleUser = await GoogleSignIn().signIn();
-      final googleAuth = await googleUser?.authentication;
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
 
+    try {
+      // Vérifier la connexion internet
+      final result =
+          await FirebaseFirestore.instance.collection('users').limit(1).get();
+      if (result.docs.isEmpty && result.metadata.isFromCache) {
+        throw FirebaseException(
+          plugin: 'firestore',
+          message: 'Pas de connexion internet',
+        );
+      }
+
+      final googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) return;
+
+      final googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
       );
 
       final userCredential = await FirebaseAuth.instance.signInWithCredential(
@@ -80,28 +149,46 @@ class _SignupPageState extends State<SignupPage> {
       );
 
       if (userCredential.user != null) {
+        final userData = {
+          'uid': userCredential.user!.uid,
+          'email': userCredential.user!.email,
+          'isAdmin': false,
+          'createdAt': FieldValue.serverTimestamp(),
+          'lastLogin': FieldValue.serverTimestamp(),
+        };
+
         await FirebaseFirestore.instance
             .collection('users')
             .doc(userCredential.user!.uid)
-            .set({
-              'uid': userCredential.user!.uid,
-              'email': userCredential.user!.email,
-              'displayName': userCredential.user!.displayName,
-              'createdAt': DateTime.now(),
-            }, SetOptions(merge: true));
+            .set(userData, SetOptions(merge: true));
 
-        if (!mounted) return;
-        Navigator.pushReplacementNamed(context, '/');
+        // Stocker le token
+        final prefs = await SharedPreferences.getInstance();
+        final token = await userCredential.user!.getIdToken();
+        await prefs.setString('auth_token', token ?? '');
+
+        // Rediriger
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/');
+        }
       }
     } catch (e) {
-      setState(() => _errorMessage = 'Erreur lors de la connexion Google.');
+      setState(
+        () =>
+            _errorMessage =
+                'Erreur lors de la connexion Google: ${e.toString()}',
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final whiteColor = Colors.white;
-    final white54 = Colors.white54;
+    const whiteColor = Colors.white;
+    const white54 = Colors.white54;
     final grey900 = Colors.grey[900];
 
     return Scaffold(
@@ -263,7 +350,7 @@ class _SignupPageState extends State<SignupPage> {
                             width: 24,
                             height: 24,
                           ),
-                          onPressed: _handleGoogleSignIn,
+                          onPressed: _isLoading ? null : _handleGoogleSignIn,
                         ),
                       ],
                     ),

@@ -12,7 +12,7 @@ dependencies:
   google_sign_in: ^6.1.1
   cupertino_icons: ^1.0.2
   google_fonts: ^6.1.0
-  flutter_quill: ^6.4.4
+  flutter_markdown: ^0.6.18
   flutter_svg: ^2.0.7
 
   # Firebase Core
@@ -44,7 +44,7 @@ dependencies:
   cached_network_image: ^3.3.1
 
   # Local storage
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.5.3
 
   # Provider
   provider: ^6.1.1

@@ -4,15 +4,27 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:notepro/features/auth/data/services/auth_service.dart';
 import 'package:notepro/features/auth/presentation/providers/auth_provider.dart';
-import 'package:notepro/features/auth/presentation/login_page.dart';
-import 'package:notepro/features/auth/presentation/signup_page.dart';
-import 'package:notepro/features/auth/presentation/home_page.dart';
-import 'package:notepro/features/admin/presentation/admin_dashboard.dart';
+import 'package:notepro/routes/routes.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  try {
+    print('Initialisation de Firebase...');
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('Firebase initialisé avec succès');
+  } catch (e) {
+    print('Erreur lors de l\'initialisation de Firebase: $e');
+    if (e.toString().contains('duplicate-app')) {
+      print('L\'app Firebase est déjà initialisée');
+    } else {
+      rethrow;
+    }
+  }
+
   runApp(const MyApp());
 }
 
@@ -63,13 +75,8 @@ class MyApp extends StatelessWidget {
             Theme.of(context).textTheme,
           ),
         ),
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const HomePage(),
-          '/login': (context) => const LoginPage(),
-          '/signup': (context) => const SignupPage(),
-          '/admin': (context) => const DashboardPage(),
-        },
+        initialRoute: Routes.home,
+        onGenerateRoute: Routes.generateRoute,
       ),
     );
   }

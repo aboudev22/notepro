@@ -41,7 +41,8 @@ class _AnimationCardState extends State<AnimationCard>
 
   void _startAutoScroll() {
     _scrollTimer = Timer.periodic(const Duration(milliseconds: 5), (_) {
-      if (_scrollController.hasClients) {
+      if (_scrollController.hasClients &&
+          _scrollController.position.hasContentDimensions) {
         double maxExtent = _scrollController.position.maxScrollExtent;
         double current = _scrollController.offset + 0.5;
 
