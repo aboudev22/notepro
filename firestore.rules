@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Règles pour la collection users
+    match /users/{userId} {
+      // Permet la lecture/écriture si l'utilisateur est authentifié
+      allow read, write: if request.auth != null;
+      
+      // Permet la création de son propre document utilisateur
+      allow create: if request.auth.uid == userId;
+      
+      // Permet la mise à jour de son propre document
+      allow update: if request.auth.uid == userId;
+    }
+    
+    // Règles pour la collection articles
+    match /articles/{articleId} {
+      // Tout le monde peut lire les articles publiés
+      allow read: if true;
+      
+      // Seuls les utilisateurs authentifiés peuvent créer des articles
+      allow create: if request.auth != null 
+        && request.resource.data.author == request.auth.uid
+        && request.resource.data.status == 'published';
+      
+      // Seuls les auteurs peuvent modifier leurs articles
+      allow update: if request.auth != null 
+        && resource.data.author == request.auth.uid;
+      
+      // Seuls les auteurs peuvent supprimer leurs articles
+      allow delete: if request.auth != null 
+        && resource.data.author == request.auth.uid;
+    }
+    
+    // Règles par défaut pour les autres collections
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+} 
