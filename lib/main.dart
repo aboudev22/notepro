@@ -6,6 +6,9 @@ import 'package:notepro/features/auth/data/services/auth_service.dart';
 import 'package:notepro/features/auth/presentation/providers/auth_provider.dart';
 import 'package:notepro/routes/routes.dart';
 import 'firebase_options.dart';
+import 'package:notepro/features/admin/presentation/create_article_page.dart';
+import 'package:notepro/features/blog/presentation/blog_page.dart';
+import 'package:notepro/features/blog/presentation/article_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -77,6 +80,16 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: Routes.home,
         onGenerateRoute: Routes.generateRoute,
+        routes: {
+          '/create-article': (context) => const CreateArticlePage(),
+          '/blog': (context) => const BlogPage(),
+          '/article': (context) {
+            final args =
+                ModalRoute.of(context)!.settings.arguments
+                    as Map<String, dynamic>;
+            return ArticlePage(articleId: args['id']);
+          },
+        },
       ),
     );
   }

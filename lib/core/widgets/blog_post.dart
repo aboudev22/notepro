@@ -3,114 +3,234 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:notepro/core/models/blog.dart';
 import 'package:notepro/core/constants.dart';
 import 'package:notepro/responsive.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:typed_data';
 
-class BlogPostCard extends StatelessWidget {
-  final Blog blog;
-  const BlogPostCard({super.key, required this.blog});
+class BlogPostCard extends StatefulWidget {
+  final String id;
+  final String title;
+  final String content;
+  final Uint8List? mainImage;
+  final DateTime createdAt;
+  final int likes;
+  final int comments;
+  final int shares;
+  final String authorEmail;
+
+  const BlogPostCard({
+    super.key,
+    required this.id,
+    required this.title,
+    required this.content,
+    this.mainImage,
+    required this.createdAt,
+    required this.likes,
+    required this.comments,
+    required this.shares,
+    required this.authorEmail,
+  });
+
+  @override
+  State<BlogPostCard> createState() => _BlogPostCardState();
+}
+
+class _BlogPostCardState extends State<BlogPostCard> {
+  bool _isLiked = false;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfLiked();
+  }
+
+  Future<void> _checkIfLiked() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final doc =
+        await FirebaseFirestore.instance
+            .collection('articles')
+            .doc(widget.id)
+            .collection('likes')
+            .doc(user.uid)
+            .get();
+
+    if (mounted) {
+      setState(() {
+        _isLiked = doc.exists;
+      });
+    }
+  }
+
+  Future<void> _toggleLike() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vous devez être connecté pour liker un article'),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final articleRef = FirebaseFirestore.instance
+          .collection('articles')
+          .doc(widget.id);
+      final likeRef = articleRef.collection('likes').doc(user.uid);
+
+      if (_isLiked) {
+        await likeRef.delete();
+        await articleRef.update({'likes': FieldValue.increment(-1)});
+      } else {
+        await likeRef.set({'timestamp': FieldValue.serverTimestamp()});
+        await articleRef.update({'likes': FieldValue.increment(1)});
+      }
+
+      if (mounted) {
+        setState(() {
+          _isLiked = !_isLiked;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _shareArticle() async {
+    final url = 'https://votre-domaine.com/blog/${widget.id}';
+    await Share.share(
+      'Découvrez cet article : ${widget.title}\n$url',
+      subject: widget.title,
+    );
+
+    // Incrémenter le compteur de partages
+    try {
+      await FirebaseFirestore.instance
+          .collection('articles')
+          .doc(widget.id)
+          .update({'shares': FieldValue.increment(1)});
+    } catch (e) {
+      debugPrint('Erreur lors de l\'incrémentation des partages: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: kDefaultPadding),
-      child: Column(
-        children: [
-          AspectRatio(aspectRatio: 1.78, child: Image.asset(blog.image!)),
-          Container(
-            padding: const EdgeInsets.all(kDefaultPadding),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(10),
-                bottomRight: Radius.circular(10),
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/article', arguments: {'id': widget.id});
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.mainImage != null)
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(10),
+                ),
+                child: Image.memory(
+                  widget.mainImage!,
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.title,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Par ${widget.authorEmail} • ${DateFormat('dd/MM/yyyy').format(widget.createdAt)}',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    widget.content.length > 200
+                        ? '${widget.content.substring(0, 200)}...'
+                        : widget.content,
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          _isLiked ? Icons.favorite : Icons.favorite_border,
+                          color: _isLiked ? Colors.red : Colors.white,
+                        ),
+                        onPressed: _isLoading ? null : _toggleLike,
+                      ),
+                      Text(
+                        '${widget.likes}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      const SizedBox(width: 16),
+                      IconButton(
+                        icon: const Icon(Icons.comment, color: Colors.white),
+                        onPressed: () {
+                          // Navigation vers la page de l'article
+                          Navigator.pushNamed(context, '/article/${widget.id}');
+                        },
+                      ),
+                      Text(
+                        '${widget.comments}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      const SizedBox(width: 16),
+                      IconButton(
+                        icon: const Icon(Icons.share, color: Colors.white),
+                        onPressed: _shareArticle,
+                      ),
+                      Text(
+                        '${widget.shares}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      "Design".toUpperCase(),
-                      style: const TextStyle(
-                        color: kDarkBlackColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: kDefaultPadding),
-                    Text(
-                      blog.date!,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: kDefaultPadding,
-                  ),
-                  child: Text(
-                    blog.title!,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: Responsive.isDesktop(context) ? 32 : 24,
-                      fontFamily: "Raleway",
-                      color: kDarkBlackColor,
-                      height: 1.3,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                Text(
-                  blog.description!,
-                  maxLines: 4,
-                  style: const TextStyle(height: 1.5),
-                ),
-                const SizedBox(height: kDefaultPadding),
-                Row(
-                  children: [
-                    TextButton(
-                      onPressed: () {},
-                      child: Container(
-                        padding: const EdgeInsets.only(
-                          bottom: kDefaultPadding / 4,
-                        ),
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(color: kPrimaryColor, width: 3),
-                          ),
-                        ),
-                        child: const Text(
-                          "Read More",
-                          style: TextStyle(color: kDarkBlackColor),
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: SvgPicture.asset(
-                        "assets/icons/feather_thumbs-up.svg",
-                      ),
-                      onPressed: () {},
-                    ),
-                    IconButton(
-                      icon: SvgPicture.asset(
-                        "assets/icons/feather_message-square.svg",
-                      ),
-                      onPressed: () {},
-                    ),
-                    IconButton(
-                      icon: SvgPicture.asset(
-                        "assets/icons/feather_share-2.svg",
-                      ),
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

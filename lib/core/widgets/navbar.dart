@@ -70,7 +70,7 @@ class _NavbarState extends State<Navbar> {
                                       onTap:
                                           () => Navigator.pushNamed(
                                             context,
-                                            '/Blog',
+                                            '/blog',
                                           ),
                                     ),
                                     SizedBox(

@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:notepro/features/admin/widgets/admin_appbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'dart:typed_data';
+import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class CreateArticlePage extends StatefulWidget {
@@ -23,18 +22,8 @@ class _CreateArticlePageState extends State<CreateArticlePage> {
   final _linkTextController = TextEditingController();
   bool _isPreview = false;
   bool _isLoading = false;
-  String? _mainImageUrl;
-  Uint8List? _mainImageBytes;
+  String? _mainImageBase64;
   String _loadingMessage = '';
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _contentController.dispose();
-    _linkController.dispose();
-    _linkTextController.dispose();
-    super.dispose();
-  }
 
   void _setLoading(bool loading, {String message = ''}) {
     if (mounted) {
@@ -57,48 +46,30 @@ class _CreateArticlePageState extends State<CreateArticlePage> {
 
       if (image == null) return;
 
-      _setLoading(true, message: 'Chargement de l\'image...');
+      _setLoading(true, message: 'Préparation de l\'image...');
 
       // Lire les bytes de l'image
       final bytes = await image.readAsBytes();
-      if (!mounted) return;
-      setState(() => _mainImageBytes = bytes);
 
-      // Upload image to Firebase Storage
-      final fileName = 'main_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('article_images')
-          .child(fileName);
+      // Convertir en base64
+      final base64Image = base64Encode(bytes);
 
-      final metadata = SettableMetadata(
-        contentType: 'image/jpeg',
-        customMetadata: {
-          'uploadedBy': FirebaseAuth.instance.currentUser?.uid ?? 'unknown',
-          'uploadedAt': DateTime.now().toIso8601String(),
-          'type': 'main_image',
-        },
-      );
-
-      _setLoading(true, message: 'Upload de l\'image...');
-
-      // Upload les bytes directement
-      final uploadTask = await storageRef.putData(bytes, metadata);
-
-      if (uploadTask.state == TaskState.success) {
-        final imageUrl = await storageRef.getDownloadURL();
-        if (!mounted) return;
-        setState(() {
-          _mainImageUrl = imageUrl;
-        });
+      if (mounted) {
+        setState(() => _mainImageBase64 = base64Image);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image principale ajoutée avec succès')),
+          const SnackBar(
+            content: Text('Image principale ajoutée avec succès'),
+            backgroundColor: Colors.green,
+          ),
         );
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de l\'ajout de l\'image: $e')),
+        SnackBar(
+          content: Text('Erreur lors de la sélection: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       _setLoading(false);
@@ -117,50 +88,37 @@ class _CreateArticlePageState extends State<CreateArticlePage> {
 
       if (image == null) return;
 
-      _setLoading(true, message: 'Chargement de l\'image...');
+      _setLoading(true, message: 'Préparation de l\'image...');
 
       // Lire les bytes de l'image
       final bytes = await image.readAsBytes();
 
-      final fileName = 'content_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('article_images')
-          .child(fileName);
+      // Convertir en base64
+      final base64Image = base64Encode(bytes);
 
-      final metadata = SettableMetadata(
-        contentType: 'image/jpeg',
-        customMetadata: {
-          'uploadedBy': FirebaseAuth.instance.currentUser?.uid ?? 'unknown',
-          'uploadedAt': DateTime.now().toIso8601String(),
-          'type': 'content_image',
-        },
-      );
-
-      _setLoading(true, message: 'Upload de l\'image...');
-
-      // Upload les bytes directement
-      final uploadTask = await storageRef.putData(bytes, metadata);
-
-      if (uploadTask.state == TaskState.success) {
-        final imageUrl = await storageRef.getDownloadURL();
-        if (!mounted) return;
+      if (mounted) {
         final text = _contentController.text;
         final selection = _contentController.selection;
         final newText = text.replaceRange(
           selection.start,
           selection.end,
-          '![${image.name}]($imageUrl)',
+          '![${image.name}](data:image/jpeg;base64,$base64Image)',
         );
         _contentController.text = newText;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image ajoutée avec succès')),
+          const SnackBar(
+            content: Text('Image ajoutée avec succès'),
+            backgroundColor: Colors.green,
+          ),
         );
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de l\'ajout de l\'image: $e')),
+        SnackBar(
+          content: Text('Erreur lors de l\'insertion: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       _setLoading(false);
@@ -244,7 +202,7 @@ class _CreateArticlePageState extends State<CreateArticlePage> {
       return;
     }
 
-    if (_mainImageUrl == null) {
+    if (_mainImageBase64 == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Veuillez ajouter une image principale')),
       );
@@ -254,23 +212,11 @@ class _CreateArticlePageState extends State<CreateArticlePage> {
     _setLoading(true, message: 'Publication de l\'article...');
 
     try {
-      // Extraire les URLs des images du contenu
-      final imageUrls = <String>[];
-      final RegExp imageRegex = RegExp(r'!\[.*?\]\((.*?)\)');
-      final matches = imageRegex.allMatches(content);
-
-      for (final match in matches) {
-        if (match.groupCount >= 1) {
-          imageUrls.add(match.group(1)!);
-        }
-      }
-
       // Save article to Firestore
       await FirebaseFirestore.instance.collection('articles').add({
         'title': title,
         'content': content,
-        'mainImageUrl': _mainImageUrl,
-        'contentImageUrls': imageUrls,
+        'mainImage': _mainImageBase64,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
         'status': 'published',
@@ -334,33 +280,14 @@ class _CreateArticlePageState extends State<CreateArticlePage> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child:
-                      _mainImageUrl != null
+                      _mainImageBase64 != null
                           ? Stack(
                             children: [
-                              Image.network(
-                                _mainImageUrl!,
+                              Image.memory(
+                                base64Decode(_mainImageBase64!),
                                 width: double.infinity,
                                 height: 200,
                                 fit: BoxFit.cover,
-                                loadingBuilder: (
-                                  context,
-                                  child,
-                                  loadingProgress,
-                                ) {
-                                  if (loadingProgress == null) return child;
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      value:
-                                          loadingProgress.expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes!
-                                              : null,
-                                    ),
-                                  );
-                                },
                                 errorBuilder: (context, error, stackTrace) {
                                   return const Center(
                                     child: Text(

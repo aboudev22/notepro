@@ -8,6 +8,9 @@ import 'package:notepro/core/widgets/hero_section.dart';
 import 'package:notepro/core/widgets/navbar.dart';
 import 'package:notepro/core/widgets/burger_menu.dart';
 import 'package:notepro/features/admin/presentation/recent_posts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -112,15 +115,74 @@ class _HomePageState extends State<HomePage> {
                         constraints: const BoxConstraints(maxWidth: 1000),
                         child: Column(
                           children: [
-                            ...List.generate(
-                              blogPosts.length,
-                              (index) => BlogPostCard(blog: blogPosts[index]),
+                            StreamBuilder<QuerySnapshot>(
+                              stream:
+                                  FirebaseFirestore.instance
+                                      .collection('articles')
+                                      .orderBy('createdAt', descending: true)
+                                      .limit(5)
+                                      .snapshots(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text('Erreur: ${snapshot.error}'),
+                                  );
+                                }
+
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+
+                                final articles = snapshot.data?.docs ?? [];
+
+                                if (articles.isEmpty) {
+                                  return const Center(
+                                    child: Text(
+                                      'Aucun article disponible',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                return Column(
+                                  children:
+                                      articles.map((doc) {
+                                        final data =
+                                            doc.data() as Map<String, dynamic>;
+                                        return BlogPostCard(
+                                          id: doc.id,
+                                          title: data['title'] ?? '',
+                                          content: data['content'] ?? '',
+                                          mainImage:
+                                              data['mainImage'] != null
+                                                  ? base64Decode(
+                                                    data['mainImage'],
+                                                  )
+                                                  : null,
+                                          createdAt:
+                                              (data['createdAt'] as Timestamp)
+                                                  .toDate(),
+                                          likes: data['likes'] ?? 0,
+                                          comments: data['comments'] ?? 0,
+                                          shares: data['shares'] ?? 0,
+                                          authorEmail:
+                                              data['authorEmail'] ?? '',
+                                        );
+                                      }).toList(),
+                                );
+                              },
                             ),
-                            const RecentPosts(),
                           ],
                         ),
                       ),
                     ),
+                    const RecentPosts(),
                     const SizedBox(height: 40),
                     const Contacts(),
                   ],
