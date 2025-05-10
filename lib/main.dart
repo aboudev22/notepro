@@ -69,7 +69,16 @@ class MyApp extends StatelessWidget {
         builder: (context, child) {
           return ScrollConfiguration(
             behavior: MyCustomScrollBehavior(),
-            child: child!,
+            child: WillPopScope(
+              onWillPop: () async {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                  return false;
+                }
+                return true;
+              },
+              child: child!,
+            ),
           );
         },
         theme: ThemeData(

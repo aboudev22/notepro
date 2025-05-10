@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:typed_data';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class BlogPostCard extends StatefulWidget {
   final String id;
@@ -117,7 +118,7 @@ class _BlogPostCardState extends State<BlogPostCard> {
   }
 
   Future<void> _shareArticle() async {
-    final url = 'https://votre-domaine.com/blog/${widget.id}';
+    final url = 'https://notepro-32aa1.web.app/blog/${widget.id}';
     await Share.share(
       'Découvrez cet article : ${widget.title}\n$url',
       subject: widget.title,
@@ -138,10 +139,10 @@ class _BlogPostCardState extends State<BlogPostCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, '/article', arguments: {'id': widget.id});
+        Navigator.pushNamed(context, '/article', arguments: widget.id);
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
+        margin: const EdgeInsets.only(bottom: 24),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.1),
           borderRadius: BorderRadius.circular(10),
@@ -183,11 +184,87 @@ class _BlogPostCardState extends State<BlogPostCard> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    widget.content.length > 200
-                        ? '${widget.content.substring(0, 200)}...'
-                        : widget.content,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  Container(
+                    constraints: const BoxConstraints(maxHeight: 120),
+                    child: SingleChildScrollView(
+                      child: MarkdownBody(
+                        data:
+                            widget.content.length > 200
+                                ? '${widget.content.substring(0, 200)}...'
+                                : widget.content,
+                        styleSheet: MarkdownStyleSheet(
+                          p: TextStyle(
+                            color: Colors.white,
+                            fontSize:
+                                MediaQuery.of(context).size.width < 600
+                                    ? 14
+                                    : 16,
+                            height: 1.5,
+                          ),
+                          h1: TextStyle(
+                            color: Colors.white,
+                            fontSize:
+                                MediaQuery.of(context).size.width < 600
+                                    ? 20
+                                    : 24,
+                            fontWeight: FontWeight.bold,
+                            height: 1.5,
+                          ),
+                          h2: TextStyle(
+                            color: Colors.white,
+                            fontSize:
+                                MediaQuery.of(context).size.width < 600
+                                    ? 18
+                                    : 20,
+                            fontWeight: FontWeight.bold,
+                            height: 1.5,
+                          ),
+                          h3: TextStyle(
+                            color: Colors.white,
+                            fontSize:
+                                MediaQuery.of(context).size.width < 600
+                                    ? 16
+                                    : 18,
+                            fontWeight: FontWeight.bold,
+                            height: 1.5,
+                          ),
+                          strong: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          em: const TextStyle(
+                            color: Colors.white,
+                            fontStyle: FontStyle.italic,
+                          ),
+                          blockquote: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontStyle: FontStyle.italic,
+                            fontSize:
+                                MediaQuery.of(context).size.width < 600
+                                    ? 12
+                                    : 14,
+                            backgroundColor: Colors.black12,
+                            height: 1.5,
+                          ),
+                          code: TextStyle(
+                            color: Colors.white,
+                            backgroundColor: Colors.black26,
+                            fontSize:
+                                MediaQuery.of(context).size.width < 600
+                                    ? 12
+                                    : 14,
+                            fontFamily: 'monospace',
+                            height: 1.5,
+                          ),
+                          codeblockDecoration: BoxDecoration(
+                            color: Colors.black26,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        selectable: true,
+                        shrinkWrap: true,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Row(

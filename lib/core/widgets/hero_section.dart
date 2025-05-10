@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:notepro/routes/routes.dart';
 import 'dart:math' as math;
 
 class HeroSection extends StatelessWidget {
@@ -9,6 +10,7 @@ class HeroSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
     final isTablet = MediaQuery.of(context).size.width < 1000;
+    final isLargeScreen = MediaQuery.of(context).size.width >= 1600;
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -20,7 +22,8 @@ class HeroSection extends StatelessWidget {
           SelectableText.rich(
             TextSpan(
               style: GoogleFonts.bricolageGrotesque(
-                fontSize: isMobile ? 44 : (isTablet ? 36 : 90),
+                fontSize:
+                    isLargeScreen ? 80 : (isMobile ? 32 : (isTablet ? 28 : 48)),
                 fontWeight: FontWeight.w900,
                 color: Colors.white,
                 height: 1.3,
@@ -44,7 +47,10 @@ class HeroSection extends StatelessWidget {
                         "milliers",
                         style: GoogleFonts.bricolageGrotesque(
                           fontWeight: FontWeight.w500,
-                          fontSize: isMobile ? 44 : (isTablet ? 85 : 90),
+                          fontSize:
+                              isLargeScreen
+                                  ? 80
+                                  : (isMobile ? 32 : (isTablet ? 28 : 48)),
                           color: Colors.black,
                         ),
                       ),
@@ -66,16 +72,22 @@ class HeroSection extends StatelessWidget {
                               "entreprises",
                               style: GoogleFonts.bricolageGrotesque(
                                 fontWeight: FontWeight.w900,
-                                fontSize: isMobile ? 44 : (isTablet ? 85 : 90),
+                                fontSize:
+                                    isLargeScreen
+                                        ? 80
+                                        : (isMobile
+                                            ? 32
+                                            : (isTablet ? 28 : 48)),
                                 color: Colors.white,
                               ),
                             ),
-                            Image.asset(
-                              'assets/circle.png',
-                              width: isMobile ? 260 : (isTablet ? 440 : 540),
-                              height: isMobile ? 90 : (isTablet ? 105 : 160),
-                              fit: BoxFit.fill,
-                            ),
+                            if (!isMobile)
+                              Image.asset(
+                                'assets/circle.png',
+                                width: isMobile ? 260 : (isTablet ? 440 : 540),
+                                height: isMobile ? 90 : (isTablet ? 105 : 160),
+                                fit: BoxFit.fill,
+                              ),
                           ],
                         ),
                       ),
@@ -100,7 +112,10 @@ class HeroSection extends StatelessWidget {
                         "produits",
                         style: GoogleFonts.bricolageGrotesque(
                           fontWeight: FontWeight.w500,
-                          fontSize: isMobile ? 44 : (isTablet ? 85 : 90),
+                          fontSize:
+                              isLargeScreen
+                                  ? 80
+                                  : (isMobile ? 32 : (isTablet ? 28 : 48)),
                           color: Colors.black,
                         ),
                       ),
@@ -149,7 +164,7 @@ class HeroSection extends StatelessWidget {
           Text(
             "Explorez 1000+ avis et notes",
             style: GoogleFonts.bricolageGrotesque(
-              fontSize: 18,
+              fontSize: isLargeScreen ? 32 : 18,
               fontWeight: FontWeight.w500,
               color: Colors.white70,
             ),
@@ -158,7 +173,14 @@ class HeroSection extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Bouton Explorer
-          MouseRegion(onEnter: (_) {}, onExit: (_) {}, child: _ExploreButton()),
+          MouseRegion(
+            onEnter: (_) {},
+            onExit: (_) {},
+            child: GestureDetector(
+              onTap: () => Navigator.pushNamed(context, Routes.blog),
+              child: _ExploreButton(),
+            ),
+          ),
         ],
       ),
     );
@@ -188,6 +210,8 @@ class _ExploreButtonState extends State<_ExploreButton> {
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width >= 1600;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       decoration: BoxDecoration(
@@ -199,7 +223,10 @@ class _ExploreButtonState extends State<_ExploreButton> {
         onEnter: (_) => setState(() => _hover = true),
         onExit: (_) => setState(() => _hover = false),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: isLargeScreen ? 32 : 20,
+            vertical: isLargeScreen ? 16 : 12,
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -208,7 +235,7 @@ class _ExploreButtonState extends State<_ExploreButton> {
                 style: GoogleFonts.bricolageGrotesque(
                   color: _hover ? Colors.black : Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: isLargeScreen ? 32 : 16,
                 ),
               ),
               const SizedBox(width: 8),
@@ -218,7 +245,7 @@ class _ExploreButtonState extends State<_ExploreButton> {
                 child: Icon(
                   Icons.arrow_upward,
                   color: _hover ? Colors.black : Colors.white,
-                  size: 20,
+                  size: isLargeScreen ? 32 : 20,
                 ),
               ),
             ],

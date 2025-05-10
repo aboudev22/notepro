@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart' show GoogleFonts;
+import 'package:notepro/features/pages/about_page.dart';
+import 'package:notepro/features/pages/expertise_page.dart';
 
 void main() {
   runApp(
@@ -114,12 +116,50 @@ class Contacts extends StatelessWidget {
       children: [
         _GridTitle(text: 'Entreprise', style: baseStyle),
         _GridTitle(text: 'Services', style: baseStyle),
-        _GridItem(text: 'À propos', style: baseStyle),
-        _GridItem(text: 'Expertise', style: baseStyle),
-        _GridItem(text: 'Notes', style: baseStyle),
-        _GridItem(text: 'Support', style: baseStyle),
-        _GridItem(text: 'Blog', style: baseStyle),
-        _GridItem(text: 'Carrières', style: baseStyle),
+        _GridItem(
+          text: 'À propos',
+          style: baseStyle,
+          onTap:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AboutPage()),
+              ),
+        ),
+        _GridItem(
+          text: 'Expertise',
+          style: baseStyle,
+          onTap:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ExpertisePage()),
+              ),
+        ),
+        _GridItem(
+          text: 'Notes',
+          style: baseStyle,
+          onTap: () {
+            // TODO: Implémenter la navigation vers la page des notes
+          },
+        ),
+        _GridItem(
+          text: 'Support',
+          style: baseStyle,
+          onTap: () {
+            // TODO: Implémenter la navigation vers la page de support
+          },
+        ),
+        _GridItem(
+          text: 'Blog',
+          style: baseStyle,
+          onTap: () => Navigator.pushNamed(context, '/blog'),
+        ),
+        _GridItem(
+          text: 'Carrières',
+          style: baseStyle,
+          onTap: () {
+            // TODO: Implémenter la navigation vers la page des carrières
+          },
+        ),
       ],
     );
   }
@@ -159,8 +199,9 @@ class _GridTitle extends StatelessWidget {
 class _GridItem extends StatefulWidget {
   final String text;
   final TextStyle style;
+  final VoidCallback? onTap;
 
-  const _GridItem({required this.text, required this.style});
+  const _GridItem({required this.text, required this.style, this.onTap});
 
   @override
   State<_GridItem> createState() => _GridItemState();
@@ -176,7 +217,7 @@ class _GridItemState extends State<_GridItem> {
       onEnter: (_) => setState(() => _isHovering = true),
       onExit: (_) => setState(() => _isHovering = false),
       child: GestureDetector(
-        onTap: () {},
+        onTap: widget.onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           child: Text(
