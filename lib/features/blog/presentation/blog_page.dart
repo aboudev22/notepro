@@ -35,13 +35,41 @@ class _BlogPageState extends State<BlogPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-                  const Text(
-                    'Blog',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Positioned(
+                        left: 16,
+                        child: IconButton(
+                          icon: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.5),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                            ),
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ),
+                      const Expanded(
+                        child: Text(
+                          'Blog',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 56,
+                      ), // Pour équilibrer le bouton retour
+                    ],
                   ),
                   const SizedBox(height: 40),
                   StreamBuilder<QuerySnapshot>(

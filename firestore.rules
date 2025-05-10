@@ -30,11 +30,29 @@ service cloud.firestore {
       // Seuls les auteurs peuvent supprimer leurs articles
       allow delete: if request.auth != null 
         && resource.data.author == request.auth.uid;
+
+      // Règles pour les sous-collections de commentaires
+      match /comments/{commentId} {
+        // Tout le monde peut lire les commentaires
+        allow read: if true;
+        
+        // Tout le monde peut créer des commentaires
+        allow create: if true;
+        
+        // Seuls l'auteur du commentaire peut le modifier
+        allow update: if request.auth != null 
+          && resource.data.userId == request.auth.uid;
+        
+        // Seuls l'auteur du commentaire peut le supprimer
+        allow delete: if request.auth != null 
+          && resource.data.userId == request.auth.uid;
+      }
     }
     
     // Règles par défaut pour les autres collections
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read: if true;  // Permet la lecture pour tous
+      allow write: if request.auth != null;  // Permet l'écriture uniquement aux utilisateurs authentifiés
     }
   }
 } 

@@ -10,6 +10,10 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:typed_data';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:notepro/features/blog/presentation/article_page.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 
 class BlogPostCard extends StatefulWidget {
   final String id;
@@ -21,6 +25,7 @@ class BlogPostCard extends StatefulWidget {
   final int comments;
   final int shares;
   final String authorEmail;
+  final VoidCallback? onTap;
 
   const BlogPostCard({
     super.key,
@@ -33,6 +38,7 @@ class BlogPostCard extends StatefulWidget {
     required this.comments,
     required this.shares,
     required this.authorEmail,
+    this.onTap,
   });
 
   @override
@@ -119,10 +125,25 @@ class _BlogPostCardState extends State<BlogPostCard> {
 
   Future<void> _shareArticle() async {
     final url = 'https://notepro-32aa1.web.app/blog/${widget.id}';
-    await Share.share(
-      'Découvrez cet article : ${widget.title}\n$url',
-      subject: widget.title,
-    );
+
+    if (kIsWeb) {
+      // Sur PC, copier le lien dans le presse-papier
+      await Clipboard.setData(ClipboardData(text: url));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Lien copié dans le presse-papier'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } else {
+      // Sur mobile, utiliser le partage natif
+      await Share.share(
+        'Découvrez cet article : ${widget.title}\n$url',
+        subject: widget.title,
+      );
+    }
 
     // Incrémenter le compteur de partages
     try {
@@ -139,7 +160,12 @@ class _BlogPostCardState extends State<BlogPostCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, '/article', arguments: widget.id);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ArticlePage(articleId: widget.id),
+          ),
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 24),
@@ -284,8 +310,14 @@ class _BlogPostCardState extends State<BlogPostCard> {
                       IconButton(
                         icon: const Icon(Icons.comment, color: Colors.white),
                         onPressed: () {
-                          // Navigation vers la page de l'article
-                          Navigator.pushNamed(context, '/article/${widget.id}');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) =>
+                                      ArticlePage(articleId: widget.id),
+                            ),
+                          );
                         },
                       ),
                       Text(

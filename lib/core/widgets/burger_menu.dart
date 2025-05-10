@@ -13,115 +13,97 @@ class BurgerMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!visible) return const SizedBox.shrink();
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.pop(context);
-      },
+    return Drawer(
       child: Container(
-        color: Colors.black.withOpacity(0.5),
-        child: GestureDetector(
-          onTap: () {}, // Empêche la propagation du tap
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.7,
-              height: MediaQuery.of(context).size.height,
-              color: Colors.white,
-              child: Column(
+        color: Colors.white,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              color: Colors.black,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    color: Colors.black,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Image.asset('assets/logo.png', width: 50, height: 50),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.white),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Consumer<AuthProvider>(
-                      builder: (context, authProvider, child) {
-                        return ListView(
-                          padding: const EdgeInsets.all(20),
-                          children: [
-                            _MenuItem(
-                              text: 'Blog',
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.pushNamed(context, Routes.blog);
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            _MenuItem(
-                              text: 'Contacts',
-                              onTap: () {
-                                Navigator.pop(context);
-                                // TODO: Naviguer vers la page de contacts
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            if (authProvider.isAuthenticated) ...[
-                              if (authProvider.isAdmin)
-                                _MenuItem(
-                                  text: 'Dashboard',
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    Navigator.pushNamed(
-                                      context,
-                                      Routes.adminDashboard,
-                                    );
-                                  },
-                                  color: Colors.blue,
-                                ),
-                              const SizedBox(height: 16),
-                              _MenuItem(
-                                text: 'Déconnexion',
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  authProvider.signOut();
-                                },
-                                color: Colors.red,
-                              ),
-                            ] else ...[
-                              _MenuItem(
-                                text: 'Connexion',
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  Navigator.pushNamed(context, Routes.login);
-                                },
-                              ),
-                              const SizedBox(height: 16),
-                              _MenuItem(
-                                text: 'Inscription',
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  Navigator.pushNamed(context, Routes.signup);
-                                },
-                              ),
-                            ],
-                            const SizedBox(height: 16),
-                            _MenuItem(
-                              text: 'Rédiger un avis',
-                              onTap: () {
-                                Navigator.pop(context);
-                                // TODO: Naviguer vers la page de rédaction d'avis
-                              },
-                              color: Colors.black,
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
+                  Image.asset('assets/logo.png', width: 50, height: 50),
                 ],
               ),
             ),
-          ),
+            Expanded(
+              child: Consumer<AuthProvider>(
+                builder: (context, authProvider, child) {
+                  return ListView(
+                    padding: const EdgeInsets.all(20),
+                    children: [
+                      _MenuItem(
+                        text: 'Blog',
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, Routes.blog);
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _MenuItem(
+                        text: 'Contacts',
+                        onTap: () {
+                          Navigator.pop(context);
+                          // TODO: Naviguer vers la page de contacts
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      if (authProvider.isAuthenticated) ...[
+                        if (authProvider.isAdmin)
+                          _MenuItem(
+                            text: 'Dashboard',
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.pushNamed(
+                                context,
+                                Routes.adminDashboard,
+                              );
+                            },
+                            color: Colors.blue,
+                          ),
+                        const SizedBox(height: 16),
+                        _MenuItem(
+                          text: 'Déconnexion',
+                          onTap: () {
+                            Navigator.pop(context);
+                            authProvider.signOut();
+                          },
+                          color: Colors.red,
+                        ),
+                      ] else ...[
+                        _MenuItem(
+                          text: 'Connexion',
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.pushNamed(context, Routes.login);
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _MenuItem(
+                          text: 'Inscription',
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.pushNamed(context, Routes.signup);
+                          },
+                        ),
+                      ],
+                      const SizedBox(height: 16),
+                      _MenuItem(
+                        text: 'Rédiger un avis',
+                        onTap: () {
+                          Navigator.pop(context);
+                          // TODO: Naviguer vers la page de rédaction d'avis
+                        },
+                        color: Colors.black,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

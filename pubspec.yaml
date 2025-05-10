@@ -77,3 +77,7 @@ flutter:
     - assets/circle.png
     - assets/hero.png
     - assets/logo.png
+
+  #fonts:
+  #  - family: BricolageGrotesque
+  #    - asset: assets/fonts/BricolageGrotesque-Regular.ttf

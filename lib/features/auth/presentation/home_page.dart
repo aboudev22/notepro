@@ -185,6 +185,12 @@ class _HomePageState extends State<HomePage> {
                                           shares: data['shares'] ?? 0,
                                           authorEmail:
                                               data['authorEmail'] ?? '',
+                                          onTap: () {
+                                            Navigator.pushNamed(
+                                              context,
+                                              '/article/${doc.id}',
+                                            );
+                                          },
                                         );
                                       }).toList(),
                                 );
