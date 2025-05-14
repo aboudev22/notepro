@@ -89,16 +89,6 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: Routes.home,
         onGenerateRoute: Routes.generateRoute,
-        routes: {
-          '/create-article': (context) => const CreateArticlePage(),
-          '/blog': (context) => const BlogPage(),
-          '/article': (context) {
-            final args =
-                ModalRoute.of(context)!.settings.arguments
-                    as Map<String, dynamic>;
-            return ArticlePage(articleId: args['id']);
-          },
-        },
       ),
     );
   }

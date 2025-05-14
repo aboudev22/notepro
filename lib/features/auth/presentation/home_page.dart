@@ -11,6 +11,7 @@ import 'package:notepro/features/companies/presentation/companies_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:notepro/routes/routes.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -66,10 +67,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _handleNavigation(String route) {
+    _closeMenuIfOpen();
+    Future.microtask(() {
+      Navigator.pushNamed(context, route);
+    });
+  }
+
   @override
   void dispose() {
     _searchFocusNode.dispose();
     _scrollController.dispose();
+    if (_viewMenu) {
+      _closeMenuIfOpen();
+    }
     super.dispose();
   }
 
@@ -415,7 +426,10 @@ class _HomePageState extends State<HomePage> {
                 right: 0,
                 bottom: 0,
                 width: MediaQuery.of(context).size.width * 0.7,
-                child: BurgerMenu(visible: _viewMenu),
+                child: BurgerMenu(
+                  visible: _viewMenu,
+                  onClose: _closeMenuIfOpen,
+                ),
               ),
           ],
         ),

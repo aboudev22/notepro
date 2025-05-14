@@ -198,7 +198,7 @@ class ArticlesSection extends StatelessWidget {
                   crossAxisCount: isMobile ? 1 : (isTablet ? 2 : 3),
                   crossAxisSpacing: isMobile ? 16 : 24,
                   mainAxisSpacing: isMobile ? 16 : 24,
-                  childAspectRatio: isMobile ? 1.2 : 0.8,
+                  childAspectRatio: isMobile ? 1.5 : 1.2,
                 ),
                 itemCount: articles.length,
                 itemBuilder: (context, index) {
@@ -231,89 +231,174 @@ class ArticlesSection extends StatelessWidget {
                             ),
                             child: Image.memory(
                               mainImage,
-                              height: isMobile ? 150 : 200,
+                              height: isMobile ? 120 : 160,
                               width: double.infinity,
                               fit: BoxFit.cover,
                             ),
                           ),
-                        Padding(
-                          padding: EdgeInsets.all(isMobile ? 12 : 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                data['title'] ?? '',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.textColor,
-                                  fontSize: isMobile ? 16 : null,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                data['content'] ?? '',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.secondaryColor,
-                                  fontSize: isMobile ? 12 : null,
-                                ),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.calendar_today,
-                                        size: isMobile ? 12 : 16,
-                                        color: AppTheme.secondaryColor,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        DateFormatter.format(
-                                          (data['createdAt'] as Timestamp)
-                                              .toDate(),
-                                        ),
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodySmall?.copyWith(
-                                          color: AppTheme.secondaryColor,
-                                          fontSize: isMobile ? 10 : null,
-                                        ),
-                                      ),
-                                    ],
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.all(isMobile ? 12 : 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  data['title'] ?? '',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.textColor,
+                                    fontSize: isMobile ? 16 : null,
                                   ),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.comment,
-                                        size: isMobile ? 12 : 16,
-                                        color: AppTheme.secondaryColor,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${data['comments'] ?? 0}',
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodySmall?.copyWith(
-                                          color: AppTheme.secondaryColor,
-                                          fontSize: isMobile ? 10 : null,
-                                        ),
-                                      ),
-                                    ],
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  data['content'] ?? '',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodyMedium?.copyWith(
+                                    color: AppTheme.secondaryColor,
+                                    fontSize: isMobile ? 12 : null,
                                   ),
-                                ],
-                              ),
-                            ],
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const Spacer(),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today,
+                                          size: isMobile ? 12 : 16,
+                                          color: AppTheme.secondaryColor,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          DateFormatter.format(
+                                            (data['createdAt'] as Timestamp)
+                                                .toDate(),
+                                          ),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            color: AppTheme.secondaryColor,
+                                            fontSize: isMobile ? 10 : null,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.comment,
+                                          size: isMobile ? 12 : 16,
+                                          color: AppTheme.secondaryColor,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${data['comments'] ?? 0}',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            color: AppTheme.secondaryColor,
+                                            fontSize: isMobile ? 10 : null,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.delete,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder:
+                                                  (context) => AlertDialog(
+                                                    title: const Text(
+                                                      'Confirmation',
+                                                    ),
+                                                    content: const Text(
+                                                      'Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible.',
+                                                    ),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed:
+                                                            () => Navigator.pop(
+                                                              context,
+                                                            ),
+                                                        child: const Text(
+                                                          'Annuler',
+                                                        ),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () async {
+                                                          try {
+                                                            await doc.reference
+                                                                .delete();
+                                                            if (context
+                                                                .mounted) {
+                                                              Navigator.pop(
+                                                                context,
+                                                              );
+                                                              ScaffoldMessenger.of(
+                                                                context,
+                                                              ).showSnackBar(
+                                                                const SnackBar(
+                                                                  content: Text(
+                                                                    'Article supprimé avec succès',
+                                                                  ),
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .green,
+                                                                ),
+                                                              );
+                                                            }
+                                                          } catch (e) {
+                                                            if (context
+                                                                .mounted) {
+                                                              Navigator.pop(
+                                                                context,
+                                                              );
+                                                              ScaffoldMessenger.of(
+                                                                context,
+                                                              ).showSnackBar(
+                                                                SnackBar(
+                                                                  content: Text(
+                                                                    'Erreur lors de la suppression: $e',
+                                                                  ),
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .red,
+                                                                ),
+                                                              );
+                                                            }
+                                                          }
+                                                        },
+                                                        child: const Text(
+                                                          'Supprimer',
+                                                          style: TextStyle(
+                                                            color: Colors.red,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],

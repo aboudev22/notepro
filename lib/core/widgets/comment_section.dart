@@ -165,7 +165,7 @@ class _CommentSectionState extends State<CommentSection> {
                           Row(
                             children: [
                               Text(
-                                data['email'] ?? 'Anonyme',
+                                (data['email'] ?? 'Anonyme').split('@')[0],
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),

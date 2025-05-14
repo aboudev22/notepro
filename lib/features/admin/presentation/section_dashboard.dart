@@ -63,9 +63,9 @@ class _DashboardStats extends StatelessWidget {
                   crossAxisCount: isMobile ? 1 : (isTablet ? 2 : 4),
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  crossAxisSpacing: 24,
-                  mainAxisSpacing: 24,
-                  childAspectRatio: 1.5,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 2.0,
                   children: [
                     _StatCard(
                       title: 'Utilisateurs',

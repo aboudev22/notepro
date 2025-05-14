@@ -6,8 +6,17 @@ import 'package:notepro/routes/routes.dart';
 
 class BurgerMenu extends StatelessWidget {
   final bool visible;
+  final VoidCallback onClose;
 
-  const BurgerMenu({Key? key, required this.visible}) : super(key: key);
+  const BurgerMenu({Key? key, required this.visible, required this.onClose})
+    : super(key: key);
+
+  void _handleNavigation(BuildContext context, String route) {
+    onClose();
+    Future.microtask(() {
+      Navigator.pushNamed(context, route);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +31,13 @@ class BurgerMenu extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               color: Colors.black,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Image.asset('assets/logo.png', width: 50, height: 50),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: onClose,
+                  ),
                 ],
               ),
             ),
@@ -36,16 +49,13 @@ class BurgerMenu extends StatelessWidget {
                     children: [
                       _MenuItem(
                         text: 'Blog',
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushNamed(context, Routes.blog);
-                        },
+                        onTap: () => _handleNavigation(context, Routes.blog),
                       ),
                       const SizedBox(height: 16),
                       _MenuItem(
                         text: 'Contacts',
                         onTap: () {
-                          Navigator.pop(context);
+                          onClose();
                           // TODO: Naviguer vers la page de contacts
                         },
                       ),
@@ -54,20 +64,18 @@ class BurgerMenu extends StatelessWidget {
                         if (authProvider.isAdmin)
                           _MenuItem(
                             text: 'Dashboard',
-                            onTap: () {
-                              Navigator.pop(context);
-                              Navigator.pushNamed(
-                                context,
-                                Routes.adminDashboard,
-                              );
-                            },
+                            onTap:
+                                () => _handleNavigation(
+                                  context,
+                                  Routes.adminDashboard,
+                                ),
                             color: Colors.blue,
                           ),
                         const SizedBox(height: 16),
                         _MenuItem(
                           text: 'Déconnexion',
                           onTap: () {
-                            Navigator.pop(context);
+                            onClose();
                             authProvider.signOut();
                           },
                           color: Colors.red,
@@ -75,25 +83,20 @@ class BurgerMenu extends StatelessWidget {
                       ] else ...[
                         _MenuItem(
                           text: 'Connexion',
-                          onTap: () {
-                            Navigator.pop(context);
-                            Navigator.pushNamed(context, Routes.login);
-                          },
+                          onTap: () => _handleNavigation(context, Routes.login),
                         ),
                         const SizedBox(height: 16),
                         _MenuItem(
                           text: 'Inscription',
-                          onTap: () {
-                            Navigator.pop(context);
-                            Navigator.pushNamed(context, Routes.signup);
-                          },
+                          onTap:
+                              () => _handleNavigation(context, Routes.signup),
                         ),
                       ],
                       const SizedBox(height: 16),
                       _MenuItem(
                         text: 'Rédiger un avis',
                         onTap: () {
-                          Navigator.pop(context);
+                          onClose();
                           // TODO: Naviguer vers la page de rédaction d'avis
                         },
                         color: Colors.black,
