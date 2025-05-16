@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart' show GoogleFonts;
 import 'package:notepro/features/pages/about_page.dart';
-import 'package:notepro/features/pages/expertise_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(
@@ -128,22 +128,18 @@ class Contacts extends StatelessWidget {
         _GridItem(
           text: 'Nous suivre sur Facebook',
           style: baseStyle,
-          onTap:
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ExpertisePage()),
-              ),
-        ),
-        _GridItem(
-          text: 'Notes',
-          style: baseStyle,
-          onTap: () {
-            //ajoute ce lien ici https://notepro-32aa1.web.app/blog/o3vsGTdvTq1elsZVANUU
-            Uri.parse(
-              'https://notepro-32aa1.web.app/blog/o3vsGTdvTq1elsZVANUU',
-            );
+          onTap: () async {
+            const url =
+                'https://www.facebook.com/profile.php?id=61574750872344';
+            if (await canLaunchUrl(Uri.parse(url))) {
+              await launchUrl(
+                Uri.parse(url),
+                mode: LaunchMode.externalApplication,
+              );
+            }
           },
         ),
+        _GridItem(text: 'Notes', style: baseStyle, onTap: () {}),
         _GridItem(
           text: 'Support',
           style: baseStyle,
