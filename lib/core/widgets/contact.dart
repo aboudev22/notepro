@@ -126,7 +126,7 @@ class Contacts extends StatelessWidget {
               ),
         ),
         _GridItem(
-          text: 'Nous suivre sur Facebook',
+          text: 'Page Facebook',
           style: baseStyle,
           onTap: () async {
             const url =

@@ -16,9 +16,22 @@ class CommentSection extends StatefulWidget {
 class _CommentSectionState extends State<CommentSection> {
   final TextEditingController _commentController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final FocusNode _commentFocusNode = FocusNode();
+  final FocusNode _emailFocusNode = FocusNode();
   bool _isLoading = false;
 
+  @override
+  void dispose() {
+    _commentController.dispose();
+    _emailController.dispose();
+    _commentFocusNode.dispose();
+    _emailFocusNode.dispose();
+    super.dispose();
+  }
+
   Future<void> _submitComment() async {
+    FocusScope.of(context).unfocus();
+
     final user = FirebaseAuth.instance.currentUser;
     final email = user?.email ?? _emailController.text.trim();
     final comment = _commentController.text.trim();
@@ -37,9 +50,7 @@ class _CommentSectionState extends State<CommentSection> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       await FirebaseFirestore.instance
@@ -56,31 +67,16 @@ class _CommentSectionState extends State<CommentSection> {
       _commentController.clear();
       _emailController.clear();
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Commentaire ajouté avec succès')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Commentaire ajouté avec succès')),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
-      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erreur: $e')));
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  @override
-  void dispose() {
-    _commentController.dispose();
-    _emailController.dispose();
-    super.dispose();
   }
 
   @override
@@ -91,6 +87,7 @@ class _CommentSectionState extends State<CommentSection> {
         if (FirebaseAuth.instance.currentUser == null) ...[
           TextField(
             controller: _emailController,
+            focusNode: _emailFocusNode,
             decoration: InputDecoration(
               labelText: 'Votre email',
               border: const OutlineInputBorder(),
@@ -101,6 +98,7 @@ class _CommentSectionState extends State<CommentSection> {
         ],
         TextField(
           controller: _commentController,
+          focusNode: _commentFocusNode,
           maxLines: 3,
           decoration: InputDecoration(
             labelText: 'Votre commentaire',
