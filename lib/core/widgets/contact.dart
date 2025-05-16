@@ -126,7 +126,7 @@ class Contacts extends StatelessWidget {
               ),
         ),
         _GridItem(
-          text: 'Expertise',
+          text: 'Nous suivre sur Facebook',
           style: baseStyle,
           onTap:
               () => Navigator.push(
@@ -138,7 +138,10 @@ class Contacts extends StatelessWidget {
           text: 'Notes',
           style: baseStyle,
           onTap: () {
-            // TODO: Implémenter la navigation vers la page des notes
+            //ajoute ce lien ici https://notepro-32aa1.web.app/blog/o3vsGTdvTq1elsZVANUU
+            Uri.parse(
+              'https://notepro-32aa1.web.app/blog/o3vsGTdvTq1elsZVANUU',
+            );
           },
         ),
         _GridItem(
